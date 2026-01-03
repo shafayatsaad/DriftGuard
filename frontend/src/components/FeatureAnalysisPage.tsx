@@ -5,10 +5,10 @@ import PsiTrendChart from './PsiTrendChart';
 
 interface FeatureAnalysisPageProps {
   onBack: () => void;
+  featureName: string;
 }
 
-const FeatureAnalysisPage: React.FC<FeatureAnalysisPageProps> = ({ onBack }) => {
-  const [featureName] = useState('income'); // Hardcoded for demo, would be prop
+const FeatureAnalysisPage: React.FC<FeatureAnalysisPageProps> = ({ onBack, featureName }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

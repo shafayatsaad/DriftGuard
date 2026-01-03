@@ -14,17 +14,30 @@ type View = 'dashboard' | 'feature-analysis' | 'live' | 'retraining' | 'alerts' 
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('signin');
+  const [selectedFeature, setSelectedFeature] = useState<string>('income');
+
+  const handleNavigate = (view: View, data?: any) => {
+    setCurrentView(view);
+    if (view === 'feature-analysis' && data) {
+      setSelectedFeature(data);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#1a1a2e] text-[#ecf0f1] font-sans pb-8">
       {/* Hide Header on Auth pages */}
       {currentView !== 'signin' && currentView !== 'signup' && (
-        <Header onNavigate={setCurrentView} currentView={currentView} />
+        <Header onNavigate={handleNavigate} currentView={currentView} />
       )}
       
       <main>
-        {currentView === 'dashboard' && <Dashboard onNavigate={setCurrentView} />}
-        {currentView === 'feature-analysis' && <FeatureAnalysisPage onBack={() => setCurrentView('dashboard')} />}
+        {currentView === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
+        {currentView === 'feature-analysis' && 
+          <FeatureAnalysisPage 
+            onBack={() => setCurrentView('dashboard')} 
+            featureName={selectedFeature}
+          />
+        }
         {currentView === 'live' && <LiveMonitoringPage />}
         {currentView === 'retraining' && <RetrainingRecommendationPage onBack={() => setCurrentView('dashboard')} />}
         {currentView === 'alerts' && <AlertConfigurationPage />}

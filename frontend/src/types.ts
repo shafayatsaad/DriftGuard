@@ -1,7 +1,7 @@
 export enum AlertSeverity {
-  CRITICAL = 'critical',
-  WARNING = 'warning',
-  INFO = 'info',
+  CRITICAL = "critical",
+  WARNING = "warning",
+  INFO = "info",
 }
 
 export interface Alert {
@@ -20,7 +20,9 @@ export interface Metric {
 export interface DriftFeature {
   name: string;
   psi: number;
-  status: 'critical' | 'warning' | 'good';
+  ks: number;
+  kl: number;
+  status: "critical" | "warning" | "good";
 }
 
 export interface PerformanceDataPoint {

@@ -1,26 +1,38 @@
 {
   "income": {
-    "psi": 0.0003,
-    "status": "good"
+    "psi": 1.3363,
+    "ks": 0.528,
+    "kl": 0.611,
+    "status": "critical"
   },
   "debt_ratio": {
-    "psi": 0.0019,
-    "status": "good"
+    "psi": 0.3216,
+    "ks": 0.348,
+    "kl": -0.2313,
+    "status": "critical"
   },
   "loan_amount": {
-    "psi": 0.0019,
+    "psi": 0.0016,
+    "ks": 0.01,
+    "kl": -0.0012,
     "status": "good"
   },
   "credit_score": {
     "psi": 0.0,
+    "ks": 0.0,
+    "kl": 0.0,
     "status": "good"
   },
   "defaults": {
     "psi": 0.0,
+    "ks": 0.0,
+    "kl": 0.0,
     "status": "good"
   },
   "age": {
     "psi": 0.0,
+    "ks": 0.0,
+    "kl": 0.0,
     "status": "good"
   }
 }

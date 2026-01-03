@@ -2,7 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import pandas as pd
 import os
-from drift_detection import detect_drift, load_data
+from drift_detection import detect_drift, load_data, calculate_psi
+import numpy as np
 
 app = Flask(__name__)
 CORS(app)
@@ -28,6 +29,8 @@ def get_drift():
         results.append({
             "name": feature,
             "psi": metrics['psi'],
+            "ks": metrics.get('ks', 0),
+            "kl": metrics.get('kl', 0),
             "status": metrics['status']
         })
         
@@ -66,6 +69,8 @@ def get_dashboard_data():
             top_features.append({
                 "name": feature,
                 "psi": metrics['psi'],
+                "ks": metrics.get('ks', 0),
+                "kl": metrics.get('kl', 0),
                 "status": metrics['status'],
                 "drift_score": metrics['psi'] * 100
             })
@@ -127,6 +132,79 @@ def get_dashboard_data():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+
+@app.route('/api/feature-details/<feature_name>', methods=['GET'])
+def get_feature_details(feature_name):
+    try:
+        training_df = load_data(TRAINING_DATA_PATH)
+        production_df = load_data(PRODUCTION_DATA_PATH)
+        
+        if training_df is None or production_df is None:
+             return jsonify({"error": "Failed to load data"}), 500
+
+        if feature_name not in training_df.columns or feature_name not in production_df.columns:
+            return jsonify({"error": f"Feature '{feature_name}' not found"}), 404
+
+        training_data = training_df[feature_name].dropna().values
+        production_data = production_df[feature_name].dropna().values
+        
+        # Calculate PSI, Status
+        psi = calculate_psi(training_data, production_data)
+        status = 'good'
+        if psi > 0.2: status = 'critical'
+        elif psi > 0.1: status = 'warning'
+
+        # Calculate Statistics
+        def get_stats(data):
+            return {
+                "mean": float(np.mean(data)),
+                "median": float(np.median(data)),
+                "std": float(np.std(data)),
+                "min": float(np.min(data)),
+                "max": float(np.max(data))
+            }
+        
+        baseline_stats = get_stats(training_data)
+        production_stats = get_stats(production_data)
+        
+        # Calculate Histogram Data (Distribution)
+        # Create common bins
+        min_val = min(baseline_stats['min'], production_stats['min'])
+        max_val = max(baseline_stats['max'], production_stats['max'])
+        
+        # Handle constant values case
+        if min_val == max_val:
+             bins = np.array([min_val - 1, max_val + 1])
+        else:
+             bins = np.linspace(min_val, max_val, 21) # 20 bins
+        
+        hist_baseline, _ = np.histogram(training_data, bins=bins, density=True)
+        hist_production, _ = np.histogram(production_data, bins=bins, density=True)
+        
+        chart_data = []
+        for i in range(len(bins)-1):
+            bin_center = (bins[i] + bins[i+1]) / 2
+            chart_data.append({
+                "range": f"{bins[i]:.1f}-{bins[i+1]:.1f}", 
+                "bin_center": float(bin_center),
+                "baseline": float(hist_baseline[i]),
+                "production": float(hist_production[i])
+            })
+            
+        return jsonify({
+            "feature_name": feature_name,
+            "psi": round(psi, 4),
+            "status": status,
+            "baseline_stats": baseline_stats,
+            "production_stats": production_stats,
+            "chart_data": chart_data
+        })
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500 
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

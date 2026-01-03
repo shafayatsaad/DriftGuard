@@ -16,7 +16,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
   <p>
-    <b>DriftGuard</b> is an enterprise-grade MLOps dashboard designed to monitor, detect, and remediate machine learning model degradation in production. It replaces opaque model failure with <b>quantifiable health metrics</b> and <b>automated retraining strategies</b>.
+    <b>DriftGuard</b> is an enterprise-grade MLOps dashboard designed to monitor, detect, and remediate machine learning model degradation in production using advanced statistical methods like Population Stability Index (PSI), Kolmogorov-Smirnov testing, and Kullback-Leibler Divergence. It replaces opaque model failure with <b>quantifiable health metrics</b> and <b>automated retraining strategies</b>.
   </p>
 
 [Report Bug](https://github.com/shafayatsaad/driftguard/issues) · [Request Feature](https://github.com/shafayatsaad/driftguard/issues)
@@ -30,64 +30,80 @@
 In production environments, ML models don't fail with an error stack trace; they fail silently as data distributions shift (Data Drift) or relationships change (Concept Drift).
 
 **DriftGuard** solves this by providing a continuous monitoring layer that:
+
 1.  **Quantifies Drift**: Uses statistical methods like Population Stability Index (PSI) to measure distribution shifts.
 2.  **Visualizes Impact**: Correlates drift scores with estimated accuracy drops.
 3.  **Prescribes Action**: Automates the cost-benefit analysis of retraining models versus letting them run.
 
 ### Core MLOps Principles
 
--   **Observability First**: Dashboard-centric view of model health ($ Health Score).
--   **Statistical Rigor**: Reliance on proven metrics (PSI, KL Divergence) rather than simple distinct counts.
--   **Actionable Insights**: Recommendations are linked to business value (Revenue at Risk vs. Retraining Cost).
+- **Observability First**: Dashboard-centric view of model health ($ Health Score).
+- **Statistical Rigor**: Reliance on proven metrics (PSI, Kolmogorov-Smirnov test, KL Divergence) rather than simple distinct counts.
+- **Actionable Insights**: Recommendations are linked to business value (Revenue at Risk vs. Retraining Cost).
 
 ---
 
 ## 🚀 Key Features
 
 ### 📊 Live Drift Monitoring
--   **Real-time Health Score**: A composite metric (0-100) derived from drift severity across all features.
--   **Dynamic Metrics**: Tracks "Total Predictions", "Average Drift Score", and "Estimated Accuracy" live.
--   **Feature-Level Diagnostics**: Identifies exactly *which* features (e.g., `Income`, `Age`, `Debt Ratio`) are causing the model to degrade.
+
+- **Real-time Health Score**: A composite metric (0-100) derived from drift severity across all features.
+- **Dynamic Metrics**: Tracks "Total Predictions", "Average Drift Score", and "Estimated Accuracy" live.
+- **Feature-Level Diagnostics**: Identifies exactly _which_ features (e.g., `Income`, `Age`, `Debt Ratio`) are causing the model to degrade.
+- **Deep Dive Analysis**: Drill down into specific features (click "Analyze") to view histograms, PSI/KS/KL metrics, and descriptive statistics comparing training vs. production data.
+
+### 🔐 Secure Access
+- **Authentication**: Secure Login and Signup flow with JWT-ready structure (currently demo mode).
+- **Role-Based Access**: Foundations for Admin vs. Viewer roles.
 
 ### 🧠 Intelligent Retraining Recommendations
--   **Cost-Benefit Engine**: Automatically calculates whether it is profitable to retrain the model based on current revenue loss vs. compute costs.
--   **Automated Scheduling**: One-click scheduling for retraining jobs when thresholds are breached.
+
+- **Cost-Benefit Engine**: Automatically calculates whether it is profitable to retrain the model based on current revenue loss vs. compute costs.
+- **Automated Scheduling**: One-click scheduling for retraining jobs when thresholds are breached.
 
 ### ⚡ Forecasting & Trends
--   **Historical Analysis**: View drift trends over 30/60/90 days to identify slow-burning degradation.
--   **Interactive Reports**: Export comprehensive drift reports (`.csv`, `.pdf`) for compliance and auditing.
+
+- **Historical Analysis**: View drift trends over 30/60/90 days to identify slow-burning degradation.
+- **Interactive Reports**: Export comprehensive drift reports (`.csv`, `.pdf`) for compliance and auditing.
 
 ### 🔔 Smart Alerting
--   **Configurable Rules**: Set conditional alerts (e.g., "If Income PSI > 0.2 for 6 hours").
--   **Multi-Channel Notification**: Integration logic for Slack, Email, and PagerDuty (simulated).
+
+- **Configurable Rules**: Set conditional alerts (e.g., "If Income PSI > 0.2 for 6 hours").
+- **Multi-Channel Notification**: Integration logic for Slack, Email, and PagerDuty (simulated).
 
 ---
 
 ## 💻 Code Spotlight
 
-DriftGuard uses **Population Stability Index (PSI)** to detect distributional shifts. Here is a snippet of the detection logic from the backend:
+DriftGuard uses multiple statistical methods to detect distributional shifts: **Population Stability Index (PSI)**, **Kolmogorov-Smirnov (KS) test**, and **Kullback-Leibler (KL) Divergence**. Here is a snippet of the detection logic from the backend:
 
 ```python
 # backend/drift_detection.py
 
-def calculate_psi(expected, actual, buckets=10):
-    """
-    Calculates Population Stability Index (PSI) to measure data drift.
-    PSI < 0.1: No significant drift
-    PSI < 0.2: Moderate drift
-    PSI >= 0.2: Significant drift
-    """
-    def scale_range(input, min, max):
+def calculate_psi(expected_array, actual_array, buckets=10, bucket_type='quantiles'):
+    # Calculates Population Stability Index (PSI) to measure data drift.
+    # PSI < 0.1: No significant drift
+    # PSI < 0.2: Moderate drift
+    # PSI >= 0.2: Significant drift
+
+def calculate_ks(expected_array, actual_array):
+    # Calculates Kolmogorov-Smirnov statistic for distribution comparison
+
+def calculate_kl(expected_array, actual_array, buckets=10, bucket_type='quantiles'):
+    # Calculates Kullback-Leibler Divergence for distribution shift measurement
+```
+
         input += (1e-6)  # Avoid division by zero
         interp = np.interp(input, (min, max), (0, 1))
         return interp
 
     breakpoints = np.arange(0, buckets + 1) / (buckets) * 100
     # ... logic to calculate proportions ...
-    
+
     psi_value = np.sum((actual_prop - expected_prop) * np.log(actual_prop / expected_prop))
     return psi_value
-```
+
+````
 
 ---
 
@@ -104,7 +120,7 @@ The project includes a robust simulation engine `demo_scenarios.py` to demonstra
 Run a scenario using:
 ```bash
 python demo_scenarios.py --scenario 2
-```
+````
 
 ---
 
@@ -132,8 +148,9 @@ DriftGuard/
 ## 🏁 Getting Started
 
 ### Prerequisites
--   Python 3.9+
--   Node.js 16+
+
+- Python 3.9+
+- Node.js 16+
 
 ### 1. Backend Setup
 
@@ -149,7 +166,8 @@ pip install flask flask-cors pandas numpy
 # Run the API
 python app.py
 ```
-*Server runs on `http://localhost:5000`*
+
+_Server runs on `http://localhost:5000`_
 
 ### 2. Frontend Setup
 
@@ -162,7 +180,8 @@ npm install
 # Start Development Server
 npm run dev
 ```
-*Dashboard runs on `http://localhost:5173`*
+
+_Dashboard runs on `http://localhost:5173`_
 
 ---
 
@@ -187,4 +206,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 👤 Maintainer
 
 [Shafayat Saad](https://github.com/shafayatsaad) - MLOps Engineer
+
 >
