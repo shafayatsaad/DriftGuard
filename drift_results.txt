@@ -1,0 +1,26 @@
+{
+  "income": {
+    "psi": 0.0003,
+    "status": "good"
+  },
+  "debt_ratio": {
+    "psi": 0.0019,
+    "status": "good"
+  },
+  "loan_amount": {
+    "psi": 0.0019,
+    "status": "good"
+  },
+  "credit_score": {
+    "psi": 0.0,
+    "status": "good"
+  },
+  "defaults": {
+    "psi": 0.0,
+    "status": "good"
+  },
+  "age": {
+    "psi": 0.0,
+    "status": "good"
+  }
+}
